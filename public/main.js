@@ -23,27 +23,28 @@ var remotemediaURL= null;
 
 const roomToken =1;
 
-var peerconnection = null;
+var peerconnection1;
+var peerconnection2;
+
+
+// var peerconnection1 = null;
 start();
-var isnegotiated = false;
-var isnegotiated2 =false;
-var isnegotiated3 = false;
-var isnegotiated4 = false;
 function start() {
   console.log("这是第一次的client")
-  peerconnection = new RTCPeerConnection(servers);
+  peerconnection1 = new RTCPeerConnection(servers);
+  peerconnection2 = new RTCPeerConnection(servers);
   // let the "negotiationneeded" event trigger offer generation
   // onnegotiationneeded 等待onCreateSuccess
   // SDP 拿去setLocalSdp
-  peerconnection.onnegotiationneeded = function () {
-    peerconnection.createOffer(setLocalOffer, err => {
+  peerconnection1.onnegotiationneeded = function () {
+    peerconnection1.createOffer(setLocalOffer, err => {
       console.info('createOffer:', err)
     });
   }
 
   // 當有任何 ICE candidates 可用時，
   // 透過 signalingChannel 將 candidate 傳送給對方
-  peerconnection.onicecandidate = evt => {
+  peerconnection1.onicecandidate = evt => {
     if (evt.candidate){
       console.log("candidate is ready to send")
       socket.emit('candidate', {
@@ -58,29 +59,29 @@ function start() {
 
 
   // once remote stream arrives, show it in the remote video element
-  peerconnection.onaddstream = function (evt) {
+  peerconnection1.onaddstream = function (evt) {
     // remoteView.src = URL.createObjectURL(evt.stream);
     console.log("remote video added here");
-    remoteVideo.src = URL.createObjectURL(evt);
+    remoteVideo.src = URL.createObjectURL(evt.stream);
   };
 
   // get a local stream, show it in a self-view and add it to be sent
   navigator.getUserMedia({ "audio": true, "video": true }, function (stream) {
     // selfView.src = URL.createObjectURL(stream);
     localVideo.src = URL.createObjectURL(stream);
-    console.log("本地视频出来啦")
-    peerconnection.addStream(stream);
-    // peerconnection.onaddstream(stream);
+    peerconnection1.addStream(stream);
+    // peerconnection1.onaddstream(stream);
   }, logError);
 
   socket.on('offer', data =>{
     console.log("找到A的sdp, setremotesdp", data)
-    // peerconnection = new RTCPeerConnection(servers);
+    // peerconnection1 = new RTCpeerconnection1(servers);
     const desc = new RTCSessionDescription(data)
-    const a = new RTCPeerConnection(servers)
-    a.setRemoteDescription(desc)
+    // const a = new RTCpeerconnection1(servers)
+    peerconnection2.setRemoteDescription(desc)
     .then(() => {
-      a.createAnswer(desc => {
+      peerconnection2.createAnswer(desc => {
+        peerconnection2.setLocalDescription(desc);
         console.log("要sdfsdf开始send answer之后")
         socket.emit('answer',{
           type:'answer',
@@ -99,51 +100,39 @@ function start() {
       sdpMLineIndex: data.sdpMLineIndex,
       candidate: data.candidate
     })
-    if(!peerconnection || !peerconnection.remoteDescription.type){
-      console.log("peerconnection没有initialize addicecandidate")
-      peerconnection = new RTCPeerConnection(servers);
-      peerconnection.addIceCandidate(candidate).catch(err=>{
+    if(!peerconnection1 || !peerconnection1.remoteDescription.type){
+      peerconnection1 = new RTCPeerConnection(servers);
+      peerconnection1.addIceCandidate(candidate).catch(err=>{
         console.log(err)
       })
     }else{
-      peerconnection.addIceCandidate(candidate).catch(err=>{
+      peerconnection1.addIceCandidate(candidate).catch(err=>{
         console.log(err)
       })
 
     }
-    // if(data.sdp){
-    //   console.log("收到sdp了")
-    //   peerconnection.addIceCandidate(candidate)
-
-    // }else{
-
-
-    // }
-    
-    
   })
 
   socket.on('answer', data=>{
     console.log("set remote description");
     console.log(data);
     const desc = new RTCSessionDescription(data)
-    peerconnection = new RTCPeerConnection(servers);
-    peerconnection.setRemoteDescription(desc, err=>{
+    peerconnection1.setRemoteDescription(desc, err=>{
       console.log(err+"this is how I debug")
     });
-    // peerconnection.setRemoteDescription(new RTCSessionDescription(data.desc))
+    // peerconnection1.setRemoteDescription(new RTCSessionDescription(data.desc))
   })
 }
 
 function setLocalOffer(desc) {
-  // peerconnection.setLocalDescription(desc, function () {
-  //   socket.emit('stream',JSON.stringify({ "sdp": peerconnection.localDescription }));
+  // peerconnection1.setLocalDescription(desc, function () {
+  //   socket.emit('stream',JSON.stringify({ "sdp": peerconnection1.localDescription }));
   //   // socket.emit('stream', roomToken, {
   //   //   'sdp': desc
   //   // });
   // }, logError);
   console.log("setlocaloffer")
-  peerconnection.setLocalDescription(desc)
+  peerconnection1.setLocalDescription(desc)
   .then(() => {
     socket.emit('offer', {
       type:'offer',
@@ -158,7 +147,7 @@ function setLocalOffer(desc) {
 
 function setLocalAnswer(desc){
   console.log("ready to send answer")
-  peerconnection.setRemoteDescription(desc, function (){
+  peerconnection1.setRemoteDescription(desc, function (){
     socket.emit('answer', {
       type:'answer',
       sdp: desc,
@@ -168,7 +157,7 @@ function setLocalAnswer(desc){
   }, logError);
   
 
-  // peerconnection.setRemoteDescription(desc, function () {
+  // peerconnection1.setRemoteDescription(desc, function () {
   //   socket.emit('answer', {
   //     type:'answer',
   //     sdp: desc,
@@ -178,20 +167,20 @@ function setLocalAnswer(desc){
 }
 
 // socket.on('stream', function (evt) {
-//   if (!peerconnection)
+//   if (!peerconnection1)
 //     start();
 //   var timestamp = Number(new Date());
 //   console.log(timestamp,"这是第第二次")
 //   var message = JSON.parse(evt.data);
 //   if (message.sdp) {
-//     peerconnection.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
+//     peerconnection1.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
 //       // 當接收到 offer 時，要回應一個 answer
-//       if (peerconnection.remoteDescription.type == "offer")
-//         peerconnection.createAnswer(setLocalOffer, logError);
+//       if (peerconnection1.remoteDescription.type == "offer")
+//         peerconnection1.createAnswer(setLocalOffer, logError);
 //     }, logError);
 //   } else {
-//     // 接收對方的 candidate 並加入自己的 RTCPeerConnection
-//     peerconnection.addIceCandidate(new RTCIceCandidate(message.candidate));
+//     // 接收對方的 candidate 並加入自己的 RTCpeerconnection1
+//     peerconnection1.addIceCandidate(new RTCIceCandidate(message.candidate));
 //   }
 // })
 
