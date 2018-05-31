@@ -31,8 +31,7 @@ io.sockets.on('connection', socket => {
 	})
 
 	socket.on('answer', data=>{
-		console.log("收到answer")
-		desc = data.sdp;
+		console.log("收到answer了", data.sdp)
 		socket.broadcast.emit('answer', data.sdp)
 	} )
 
