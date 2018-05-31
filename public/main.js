@@ -27,7 +27,6 @@ var ifcandidatebeingcreated=false;
 // var peerconnection1 = null;
 start();
 function start() {
-  console.log("这是第一次的client")
   peerconnection1 = new RTCPeerConnection(servers);
   peerconnection2 = new RTCPeerConnection(servers);
 
@@ -37,7 +36,6 @@ function start() {
     }
     ifbeingcalled=true;
     try{
-      console.log("check createoffer被call了几次")
       await peerconnection1.setLocalDescription(await peerconnection1.createOffer())
       socket.emit('offer', {
         type:'offer',
@@ -49,8 +47,8 @@ function start() {
     }
   }
 
-  // 當有任何 ICE candidates 可用時，
-  // 透過 signalingChannel 將 candidate 傳送給對方
+  //when any ice candidate is available
+  //the available candidate will be sent to the other peer through signalingchannel
   peerconnection1.onicecandidate = evt => {
     if(ifcandidatebeingcreated){
       return
@@ -84,7 +82,6 @@ function start() {
   }, logError);
 
   socket.on('offer', data =>{
-    console.log("找到A的sdp, setremotesdp", data)
     // peerconnection1 = new RTCpeerconnection1(servers);
     const desc = new RTCSessionDescription(data)
     // const a = new RTCpeerconnection1(servers)
@@ -92,21 +89,19 @@ function start() {
     .then(() => {
       peerconnection2.createAnswer(desc => {
         peerconnection2.setLocalDescription(desc);
-        console.log("要sdfsdf开始send answer之后",desc)
         socket.emit('answer',{
           type:'answer',
           sdp: desc,
           room:roomToken
         })
       }, err => {
-        console.log("要开始send answer之后", err)
+        console.log(err)
       })
     })
-    .catch(err => console.log(err+"没有办法set remote description"))
+    .catch(err => console.log(err))
   })
 
   socket.on('candidate', data=>{
-    console.log("candidate收到了")
     var candidate= new RTCIceCandidate({
       type: 'candidate',
       label: data.candidate.sdpMLineIndex,
@@ -118,7 +113,6 @@ function start() {
         console.log(err)
       })
     }else{
-      console.log("这里是有东西的")
       peerconnection1.addIceCandidate(candidate).catch(err=>{
         console.log(err)
       })
