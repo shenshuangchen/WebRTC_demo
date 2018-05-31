@@ -69,7 +69,7 @@ function start() {
   }
 
   // once remote stream arrives, show it in the remote video element
-  peerconnection1.onaddstream = function (evt) {
+  peerconnection2.onaddstream = function (evt) {
     // remoteView.src = URL.createObjectURL(evt.stream);
     console.log("remote video added here");
     remoteVideo.src = URL.createObjectURL(evt.stream);
