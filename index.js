@@ -13,7 +13,6 @@ server.listen(port, function () {
 })
 
 io.sockets.on('connection', socket => {
-	var timestamp = Number(new Date());
 	socket.on('offer', data => {
 		socket.broadcast.emit('offer', data.sdp)
 	})

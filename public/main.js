@@ -31,10 +31,16 @@ function start() {
   peerconnection2 = new RTCPeerConnection(servers);
 
   peerconnection1.onnegotiationneeded = async ()=>{
-    if(ifbeingcalled){
-      return
-    }
-    ifbeingcalled=true;
+    
+    //kstable
+    //error processing ice candidate
+    //很奇怪 这段comment以后才能显示视频流，不comment会解决kstable和error processing的问题，但是视频流出不来
+    //但是视频流是在的
+    // if(ifbeingcalled){
+    //   return
+    // }
+    // ifbeingcalled=true;
+    console.log("let me check how many times onnegotiationneeded has been triggered")
     try{
       await peerconnection1.setLocalDescription(await peerconnection1.createOffer())
       socket.emit('offer', {
@@ -64,14 +70,16 @@ function start() {
       // socket.emit('stream',JSON.stringify({ "candidate": evt.candidate }));
     }
     
+    
   }
 
   // once remote stream arrives, show it in the remote video element
   peerconnection2.onaddstream = function (evt) {
     // remoteView.src = URL.createObjectURL(evt.stream);
-    console.log("remote video added here");
+    console.log("remote video added here", evt.stream);
     remoteVideo.src = URL.createObjectURL(evt.stream);
   };
+
 
   // get a local stream, show it in a self-view and add it to be sent
   navigator.getUserMedia({ "audio": true, "video": true }, function (stream) {
