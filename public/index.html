@@ -3,11 +3,32 @@
 	<title>Sample Page</title>
 </head>
 <body>
-<p>Hello World!</p>
-<video class="local" autoplay></video>
+<section id='vue'>
+  <button @click='identityA' v-if='identity === undefined'>A</button>
+  <button @click='identityB' v-if='identity === undefined'>B</button>
+	<video ref='local' autoplay></video>
+	<video ref='remote' autoplay></video>
+	<!-- <video v-if="identity === 'B'" autoplay src="http://upload.wikimedia.org/wikipedia/commons/7/79/Big_Buck_Bunny_small.ogv"></video> -->
+</section>
+
+
 <video class="remote" autoplay></video>
+<!-- <video id="video" src="http://upload.wikimedia.org/wikipedia/commons/7/79/Big_Buck_Bunny_small.ogv" controls="false"></video>
+	<canvas id="canvas"></canvas>
+	<label>
+	  <br />Try to play me :)</label>
+	<br /> -->
+<script src="https://vuejs.org/js/vue.min.js"></script>
 <script src="http://localhost:3000/socket.io/socket.io.js"></script>
 <script src = "main.js"></script>
-<input type="text" name="enter" class="enter" value="" id="text1"/>
+<!-- <input type="text" name="enter" class="enter" value="" id="text1"/> -->
+
+<!-- <div id="theater">
+	<video id="video" src="http://upload.wikimedia.org/wikipedia/commons/7/79/Big_Buck_Bunny_small.ogv" controls="false"></video>
+	<canvas id="canvas"></canvas>
+	<label>
+	  <br />Try to play me :)</label>
+	<br />
+</div> -->
 </body>
 </html>

@@ -14,6 +14,7 @@ server.listen(port, function () {
 
 io.sockets.on('connection', socket => {
 	socket.on('offer', data => {
+		console.log(data)
 		socket.broadcast.emit('offer', data.sdp)
 	})
 	socket.on('candidate', data=>{
@@ -21,6 +22,7 @@ io.sockets.on('connection', socket => {
 	})
 
 	socket.on('answer', data=>{
+		console.log(data)
 		socket.broadcast.emit('answer', data.sdp)
 	} )
 })
