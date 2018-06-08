@@ -28,12 +28,12 @@ const vm = new Vue({
       peerconnectionB: new RTCPeerConnection(servers),
       socket: io('http://localhost:3000'),
       identity: undefined,
+      counter:0
     }
   },
   methods: {
     identityA: async function () {
       this.identity = 'A'
-      
       //发起请求得到本地摄像头和麦克风获取的音视频流
       //加入A端的媒体流中
       navigator.getUserMedia({ audio: true, video: true }, stream => {
