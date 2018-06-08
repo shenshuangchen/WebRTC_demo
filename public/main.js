@@ -26,9 +26,8 @@ const vm = new Vue({
     return {
       peerconnectionA: new RTCPeerConnection(servers),
       peerconnectionB: new RTCPeerConnection(servers),
-      socket: io('http://localhost:3000'),
+      socket: io('http://140.143.120.33:3000'),
       identity: undefined,
-      counter:0
     }
   },
   methods: {
